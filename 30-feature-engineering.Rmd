@@ -6,7 +6,7 @@ output: html_notebook
 
 *function1*
 
-Since for many variables, the absolute value is not so representative , what we want is relative value conpared with the group. For example, we want to know how old the woman is 'whithin the group', rather than the number of her age. We need function as below to do standardization.
+Since for many variables, the absolute value is not so representative , what we want is relative value compared with the group. For example, we want to know how old the woman is 'whithin the group', rather than the exact number of her age. We need function as below to do standardization.
 
 ```{r, out.width='100%'}
 knitr::include_graphics('data/standardize.png')
@@ -29,7 +29,27 @@ standardize(pima,age,'age')
 
 *function2*
 For healthy people, the concentration of glucose is in the range of (70~125)mg/dl.
-Since what matters is whether glucose concentration is in normal range and how much it is 'abnormal'. So if the glucose concentration is in normal range, we mark it as 0. If it is out of range, we mark it as how much it is away from the range.  For detailed information you can refer to the function below.
+Since what matters is whether glucose concentration is in normal range and how much it is 'abnormal'. So if the glucose concentration is in normal range, we mark it as 0. If it is out of range, we mark it as how much it is away from the range.  
+
+e.g.
+  glucose=77  glucose_dev=0
+  glucose=126 glucose_dev=126-125=1
+  glucose=60  glucose_dev=60-77=-17
+
+
+So the function is specially designed for column 'glucose'.
+
+
+1.overall goal: generate a new data frame with a new column, which is the glucose concentration deviation from normal concentration range
+2.input: dataframe,column_name
+3.output: new dataframe(with new column at front )
+4.if someone feeds the function with other column than 'glucose', it should stop execution and give warning'this function is specially designed for glucose deviation,please retry with col_name=glucose')
+5.tips:  **`case_when`** function can be employed to calculate the deviation.  **`names`** function can be used to change the name of a specific column.
+6.the **assert** range of new column should be  [ min(glucose)-70,max(glucose)-125]
+
+
+
+For detailed information you can refer to the function below.
 
 ```{r abnormal_glucose}
 abnormal_glucose<-function(df,col,colname){
@@ -56,7 +76,10 @@ abnormal_glucose(pima,glucose,'glucose')
 *function3*
 Since the times of pregnant has some correlation with the age, the frequency of being pregnant since  sexually mature  is more sensible to describe women's  health status.
 
+e.g.
 We assume that the youngest age to be pregnant is 15. If a woman have been pregnant for 4 times and her age is 25,then the pregnant frequency is  4/(25-15)=0.4 times/year.
+
+
 Let's create a function to calculate the pregnant frequency.
 
 ```{r  preg_frequency}
@@ -94,6 +117,12 @@ knitr::include_graphics('data/normalize.png')
 ```
 
 
+1.overall goal: given whatever column , it will return a new data frame with a new column, which is the nomalized value of the input column.
+2.input: dataframe,column_name
+3.output: new dataframe(with new column at front )
+4.this function can be applied to any numeric variable
+5.the assert range should be (0,1)
+
 ```{r normalize_pedigree}
 normalize<-function(df,col,colname){
   df<-df %>% 
@@ -117,7 +146,8 @@ pima_1<-pima %>%
   standardize(age,'age') %>% 
   abnormal_glucose(glucose,'glucose') %>% 
   preg_frequency(pregnant,'pregnant') %>% 
-  normalize(pedigree,'pedigree')
+  normalize(pedigree,'pedigree') %>% 
+  select(diabetes,everything())
 
 ```
 
