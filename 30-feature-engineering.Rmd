@@ -4,7 +4,7 @@ output: html_notebook
 ---
 
 
-*function1*
+## function1
 
 Since for many variables, the absolute value is not so representative , what we want is relative value compared with the group. For example, we want to know how old the woman is 'whithin the group', rather than the exact number of her age. We need function as below to do standardization.
 
@@ -27,7 +27,7 @@ standardize(pima,age,'age')
 
 
 
-*function2*
+## function2
 For healthy people, the concentration of glucose is in the range of (70~125)mg/dl.
 Since what matters is whether glucose concentration is in normal range and how much it is 'abnormal'. So if the glucose concentration is in normal range, we mark it as 0. If it is out of range, we mark it as how much it is away from the range.  
 
@@ -52,28 +52,12 @@ So the function is specially designed for column 'glucose'.
 For detailed information you can refer to the function below.
 
 ```{r abnormal_glucose}
-abnormal_glucose<-function(df,col,colname){
-  if (colname!='glucose'){
-    print('this function is specially designed for glucose deviation,please retry with glucose')
-  }
-  else{
-  df %>% 
-    mutate(glucose_dev=case_when(
-      {{col}}<70~{{col}}-70, #hard coded range of (70~125)
-      {{col}}>125~{{col}}-125,
-      T~0
-    ))%>% 
-    select(glucose_dev,everything()) %>% 
-    verify((min({{col}},na.rm=T)-70)<=glucose_dev&glucose_dev<=(max({{col}},na.rm=T)-125))
-  }
-}
 
-abnormal_glucose(pima,glucose,'glucose')
 ```
 
 
 
-*function3*
+## function3
 Since the times of pregnant has some correlation with the age, the frequency of being pregnant since  sexually mature  is more sensible to describe women's  health status.
 
 e.g.
@@ -102,7 +86,7 @@ preg_frequency <- function(df, col,colname) {
 preg_frequency(pima,pregnant,'pregnant')
 ```
 
-*function4*
+## function4
 
 
 Sometimes we want to get the relative value of a variable. For instance,the 'pedigree' is a variable to describe the possibility of onset of diabetes,and we want it to be more intuitive and direct to show the predicting possibility. If we can normalize it,then 'pedigree' being  closer to 1, means the patient are more likely to suffer from diabetes in the 5 years; being  closer to 0, means less possibility of onset of diabetes. Normalized value are more intuitive to show the 'extent' or 'tendency'.
@@ -124,15 +108,7 @@ knitr::include_graphics('data/normalize.png')
 5.the assert range should be (0,1)
 
 ```{r normalize_pedigree}
-normalize<-function(df,col,colname){
-  df<-df %>% 
-    mutate(col_nz=({{col}}-min({{col}}))/(max({{col}})-min({{col}})))%>% 
-    select(col_nz,everything()) %>% 
-    assert(within_bounds(0,1),col_nz) #The outcome of normalization should be in range of [0,1]
-  names(df)[1]<-paste0(colname,'_nz')
-  df
-}
-normalize(pima,pedigree,'pedigree')
+
 ```
 
 
