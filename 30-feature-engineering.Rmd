@@ -6,7 +6,11 @@ output: html_notebook
 
 *function1*
 
-Since for many variables, the  the absolute age is not so representative , what we want is relative value conpared with the group. For example, we want to know how old the woman is 'whithin the group', rather than the number of her age. We need function as below to do standardization.
+Since for many variables, the absolute value is not so representative , what we want is relative value conpared with the group. For example, we want to know how old the woman is 'whithin the group', rather than the number of her age. We need function as below to do standardization.
+
+```{r, out.width='100%'}
+knitr::include_graphics('data/standardize.png')
+```
 
 ```{r  standardize}
 standardize<-function(df,col,col_name){
@@ -25,7 +29,7 @@ standardize(pima,age,'age')
 
 *function2*
 For healthy people, the concentration of glucose is in the range of (70~125)mg/dl.
-Since what matters is whether glucose concentration is in normal range and how much it is 'abnormal'. So if the glucose concentration is in normal range, we mark it as 0. If it is out of range, we marke it as how much it is away from the range.  For detailed information you can refer to the function below.
+Since what matters is whether glucose concentration is in normal range and how much it is 'abnormal'. So if the glucose concentration is in normal range, we mark it as 0. If it is out of range, we mark it as how much it is away from the range.  For detailed information you can refer to the function below.
 
 ```{r abnormal_glucose}
 abnormal_glucose<-function(df,col,colname){
@@ -76,8 +80,18 @@ preg_frequency(pima,pregnant,'pregnant')
 ```
 
 *function4*
-the 'pedigree' is a variable to describe the possibility of onset of diabetes,and we want it to be more intuitive and direct to show the predicting possibility, so we can normalize it.
 
+
+Sometimes we want to get the relative value of a variable. For instance,the 'pedigree' is a variable to describe the possibility of onset of diabetes,and we want it to be more intuitive and direct to show the predicting possibility. If we can normalize it,then 'pedigree' being  closer to 1, means the patient are more likely to suffer from diabetes in the 5 years; being  closer to 0, means less possibility of onset of diabetes. Normalized value are more intuitive to show the 'extent' or 'tendency'.
+
+
+The way to normalize :
+
+(value-min(sample))/(max(sample)-min(sample))
+
+```{r, out.width='100%'}
+knitr::include_graphics('data/normalize.png')
+```
 
 
 ```{r normalize_pedigree}
