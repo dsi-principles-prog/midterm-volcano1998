@@ -1,0 +1,99 @@
+---
+title: "10-import"
+output: html_notebook
+---
+
+
+**data background**
+
+The population for this study was the Pima Indian population near Phoenix, Arizona. The population has been under continuous study since 1965 by the National Institute of Diabetes and Digestive and Kidney Diseases because of its high incidence rate of diabetes.This dataset describes the medical records for Pima Indians and whether or not each patient will have an onset of diabetes within five years.
+
+**variable defination**
+
+
+We have 768 instances and the following 8 attributes:
+
+1.Number of times pregnant (pregnant)
+
+2.Plasma glucose concentration a 2 hours in an oral glucose tolerance test (glucose)
+
+3.Diastolic blood pressure in mm Hg (pressure)
+
+4.Triceps skin fold thickness in mm (triceps)
+
+5.2-Hour serum insulin in mu U/ml (insulin)
+
+6.Body mass index measured as weight in kg/(height in m)^2 (mass)
+
+7.Diabetes pedigree function (pedigree)
+
+8.Age in years (age)
+
+A particularly interesting attribute used in the study was the Diabetes Pedigree Function, pedi. It provided some data on diabetes mellitus history in relatives and the genetic relationship of those relatives to the patient. This measure of genetic influence gave us an idea of the hereditary risk one might have with the onset of diabetes mellitus. Based on observations in the proceeding section, it is unclear how well this function predicts the onset of diabetes.
+
+
+
+
+## Read in and check data
+
+```{r library packages}
+library(readr)
+library(tidyverse)
+library(dplyr)
+library(assertthat)
+library(assertr)
+library(glue)
+library(janitor)
+```
+
+
+```{r import data and clean names}
+pima<- read_csv("data/PimaIndiansDiabetes2.csv") %>% clean_names()
+```
+
+
+We know that the time of pregnant , age should be no less than 0 and the age usually is less than 150,so we do the verification as below.
+```{r  verify bound}
+pima %>% 
+  verify(pregnant>=0) %>% 
+  verify(0< age & age<150) 
+```
+
+
+We know the outcome of diabetes test should be either 'positive' or 'negative', so we do the assertion as below.
+```{r check diabetes}
+pima %>% 
+  assert(in_set('pos','neg'),diabetes)
+```
+
+
+Then, let's test if there are  missing value in the columns.
+```{r check missing value}
+pima%>% 
+  assert(not_na,everything())
+```
+We can see that 5 columns  have missing value in them.
+
+## Clean up the data. 
+
+
+
+Since numeric variable are more convinient to do modeling with than character, we can transform variable of `diabetes` to factor type , labeling 'pos' as 1 and 'neg' as 0. 
+
+```{r numericalize}
+pima$diabetes<-factor(pima$diabetes,labels=c(0,1))
+
+```
+
+
+
+ps:  Since NA in this dataset means the one did not do the test, I just keep the NA in here.
+
+
+
+
+
+
+
+
+

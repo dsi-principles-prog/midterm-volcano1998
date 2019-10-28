@@ -1,0 +1,111 @@
+---
+title: "30-feature-engineering"
+output: html_notebook
+---
+
+
+*function1*
+
+Since for many variables, the  the absolute age is not so representative , what we want is relative value conpared with the group. For example, we want to know how old the woman is 'whithin the group', rather than the number of her age. We need function as below to do standardization.
+
+```{r  standardize}
+standardize<-function(df,col,col_name){
+  df<-df %>% 
+    mutate(col_sd=({{col}}-mean({{col}},na.rm=T))/sd({{col}},na.rm=T)) %>% 
+    select(col_sd,everything()) %>% 
+    verify((col_sd*sd({{col}},na.rm=T)+mean({{col}},na.rm=T)-{{col}})<0.001|is.na(col_sd*sd({{col}},na.rm=T)+mean({{col}},na.rm=T)-{{col}})) # to make sure that the transformation works
+  names(df)[1]<-paste0(col_name,'_sd') #change name
+  df
+}
+
+standardize(pima,age,'age')
+```
+
+
+
+*function2*
+For healthy people, the concentration of glucose is in the range of (70~125)mg/dl.
+Since what matters is whether glucose concentration is in normal range and how much it is 'abnormal'. So if the glucose concentration is in normal range, we mark it as 0. If it is out of range, we marke it as how much it is away from the range.  For detailed information you can refer to the function below.
+
+```{r abnormal_glucose}
+abnormal_glucose<-function(df,col,colname){
+  if (colname!='glucose'){
+    print('this function is specially designed for glucose deviation,please retry with glucose')
+  }
+  else{
+  df %>% 
+    mutate(glucose_dev=case_when(
+      {{col}}<70~{{col}}-70, #hard coded range of (70~125)
+      {{col}}>125~{{col}}-125,
+      T~0
+    ))%>% 
+    select(glucose_dev,everything()) %>% 
+    verify((min({{col}},na.rm=T)-70)<=glucose_dev&glucose_dev<=(max({{col}},na.rm=T)-125))
+  }
+}
+
+abnormal_glucose(pima,glucose,'glucose')
+```
+
+
+
+*function3*
+Since the times of pregnant has some correlation with the age, the frequency of being pregnant since  sexually mature  is more sensible to describe women's  health status.
+
+We assume that the youngest age to be pregnant is 15. If a woman have been pregnant for 4 times and her age is 25,then the pregnant frequency is  4/(25-15)=0.4 times/year.
+Let's create a function to calculate the pregnant frequency.
+
+```{r  preg_frequency}
+preg_frequency <- function(df, col,colname) {
+   if (colname!='pregnant'){
+    print('this function is specially designed for pregnant frequncy,please retry with pregnant')
+  }
+  else{
+  df %>%
+    mutate(preg_freq = {
+      {
+        col
+      }
+    } / (age - 15)) %>%
+    select(preg_freq, everything()) %>% 
+    assert(within_bounds(0, 1))# the pregnant frquency should be in the range of (0,1) in the common sense
+  }
+}
+
+preg_frequency(pima,pregnant,'pregnant')
+```
+
+*function4*
+the 'pedigree' is a variable to describe the possibility of onset of diabetes,and we want it to be more intuitive and direct to show the predicting possibility, so we can normalize it.
+
+
+
+```{r normalize_pedigree}
+normalize<-function(df,col,colname){
+  df<-df %>% 
+    mutate(col_nz=({{col}}-min({{col}}))/(max({{col}})-min({{col}})))%>% 
+    select(col_nz,everything()) %>% 
+    assert(within_bounds(0,1),col_nz) #The outcome of normalization should be in range of [0,1]
+  names(df)[1]<-paste0(colname,'_nz')
+  df
+}
+normalize(pima,pedigree,'pedigree')
+```
+
+
+
+
+
+## Prepare the data for modeling
+
+```{r  prepare for modeling}
+pima_1<-pima %>% 
+  standardize(age,'age') %>% 
+  abnormal_glucose(glucose,'glucose') %>% 
+  preg_frequency(pregnant,'pregnant') %>% 
+  normalize(pedigree,'pedigree')
+
+```
+
+
+
