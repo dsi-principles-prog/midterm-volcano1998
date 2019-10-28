@@ -115,17 +115,7 @@ knitr::include_graphics('data/normalize.png')
 
 
 
-## Prepare the data for modeling
 
-```{r  prepare for modeling}
-pima_1<-pima %>% 
-  standardize(age,'age') %>% 
-  abnormal_glucose(glucose,'glucose') %>% 
-  preg_frequency(pregnant,'pregnant') %>% 
-  normalize(pedigree,'pedigree') %>% 
-  select(diabetes,everything())
-
-```
 
 
 

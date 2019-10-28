@@ -3,3 +3,14 @@ title: "40-modeling"
 output: html_notebook
 ---
 
+## Prepare the data for modeling
+
+```{r  prepare for modeling}
+pima_1<-pima %>% 
+  standardize(age,'age') %>% 
+  #glucose_deviation(glucose,'glucose') %>% 
+  preg_frequency(pregnant,'pregnant') %>% 
+  #normalize(pedigree,'pedigree') %>% 
+  select(diabetes,everything())
+
+```
