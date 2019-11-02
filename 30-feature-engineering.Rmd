@@ -108,8 +108,24 @@ knitr::include_graphics('data/normalize.png')
 5.the assert range should be (0,1)
 
 ```{r normalize_pedigree}
-
+normalize_pedigree <- function(df, vars) {
+  df %>% 
+    mutate_at(vars, list(normalized = function(x, na.rm = FALSE) {(x-min(x, na.rm = TRUE))/(max(x, na.rm = TRUE)-min(x, na.rm = TRUE))})) %>% 
+    select(contains("normalized"), everything())
+}
+pima %>% normalize_pedigree("pedigree") %>% 
+  assert(within_bounds(0, 1), 'normalized')
 ```
+
+```{r test_normalize_pedigree_function}
+# the function can be applied to any numeric field
+pima %>% normalize_pedigree("glucose") %>% 
+  assert(within_bounds(0, 1), 'normalized')
+# pedigree is between 0 and 1
+pima %>% normalize_pedigree("pedigree") %>% 
+  assert(within_bounds(0, 1), 'normalized')
+```
+
 
 
 
